@@ -19,7 +19,7 @@ case class BmbToWishbone(p : BmbParameter) extends Component{
     val input = slave(Bmb(p))
     val output = master(Wishbone(BmbToWishbone.getWishboneConfig(p.access)))
   }
-  
+
   val inputCmd = io.input.cmd.halfPipe()
 
   val halt = Bool()
@@ -27,7 +27,7 @@ case class BmbToWishbone(p : BmbParameter) extends Component{
   val beatCount = inputCmd.transferBeatCountMinusOne
   val beatLast = beatCounter === beatCount
   when(inputCmd.valid && io.output.ACK && !halt){
-    beatCounter := beatCounter + 1
+    beatCounter := beatCounter + U(1).resized
     when(inputCmd.ready && inputCmd.last){
       beatCounter := 0
     }
