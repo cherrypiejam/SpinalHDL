@@ -99,6 +99,26 @@ class Generator extends Area { //TODO TagContainer
     h
   }
 
+  def produceIos[T <: Data](body : => Seq[T]) : Handle[Seq[T]] = {
+    val h = Handle[Seq[T]]
+    products += h
+      val p = new Generator()
+      p.dependencies += this
+      p.add task {h.load{
+          val subIos = body
+          val topIos = subIos.map(subIo => cloneOf(subIo).setPartialName(h, "", true))
+          topIos.zip(subIos).map{
+            case (topIo, subIo) => {
+              topIo.copyDirectionOf(subIo)
+              for((s,t) <- (subIo.flatten, topIo.flatten).zipped if s.isAnalog) t.setAsAnalog()
+              topIo <> subIo
+              topIo
+            }
+          }
+        }}
+    h
+  }
+
   def apply[T](body : => T): T = this.rework(body)
 
 //  def toComponent(name : String = null) = new GeneratorComponent()
